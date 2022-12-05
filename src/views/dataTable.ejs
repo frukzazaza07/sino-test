@@ -1,0 +1,113 @@
+<style>
+    .table-container {
+        width: 100%;
+        overflow-y: scroll;
+    }
+</style>
+<div class="container mt-5">
+    <div id="" class="row">
+        <div class="col-12 mt-3">
+            <table id="tables">
+                <thead>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <% for (const [key, value] of Object.entries(data[0])) { %>
+                            <% if(ignoreKey.indexOf(key) < 0){ %>
+                            <th>
+                                <%= key %>
+                            </th>
+                            <% } %>
+                        <% } %>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <% let i = 1; %>
+                    <% for (let item of data){ %>
+                        <tr>
+                            <td><%= i %></td>
+                            <% for (const [key, value] of Object.entries(item)) { %>
+                                <% if(ignoreKey.indexOf(key) < 0){ %>
+                                    <% let val = value; %>
+                                    <% if(key == 'created_at' || key == 'updated_at'){ %>
+                                        <% val = new Date(value).toLocaleString("en-US", {timeZone: 'Asia/Bangkok'}) %>
+                                    <% } %>   
+                                <td>
+                                    <%= val %>
+                                </td>
+                                <% } %>
+                            <% } %>
+                            <td><a href="<%= `${urlUpdate}/${item[keyId]}` %>" class="btn btn-warning btn-sm">Edit</a> <a href="<%= `${urlDelete}/${item[keyId]}` %>" class="btn btn-danger btn-sm">Delete</a></td>
+                        </tr>
+                        <% i++; } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+
+    let data = [];
+    $(document).ready(async () => {
+        init()
+    });
+    // const getAllData = async () => {
+    //     const res = await axios.get('/seeds/all');
+    //     data = res.data;
+    //     if (data.status == false) {
+    //         alert('Not found seeds, Import first');
+    //         window.location.href = '/import-csv';
+    //     }
+    //     console.log(data);
+    // }
+
+
+
+    const init = () => {
+        // await getAlldata();
+
+        // let labels = [];
+        // let data = [];
+        // let template = "";
+        // data.items.map((val, index) => {
+        //     labels.push(`${val.seed_varity} ${val.seed_RDCSD}`);
+        //     data.push(`${val.seed_stock_to_sale}`);
+        //     template += "<tr>";
+        //     template += `<td>${index + 1}</td>`;
+        //     template += `<td>${val.excel_id}</td>`;
+        //     template += `<td>${val.seed_rep_date}</td>`;
+        //     template += `<td>${val.seed_year}</td>`;
+        //     template += `<td>${val.seeds_year_week}</td>`;
+        //     template += `<td>${val.seed_varity}</td>`;
+        //     template += `<td>${val.seed_RDCSD}</td>`;
+        //     template += `<td>${val.seed_stock_to_sale}</td>`;
+        //     template += `<td>${val.seed_season}</td>`;
+        //     template += `<td>${val.seed_crop_year}</td>`;
+        //     template += `<td>${val.active}</td>`;
+        //     template += `<td>${val.created_at}</td>`;
+        //     template += "</tr>";
+        //     for (const [key, value] of Object.entries(simplemaps_countrymap_mapdata.state_specific)) {
+        //         // console.log(`${key}: ${value}`);
+        //         if (value.mapId == val.seed_RDCSD) {
+        //             simplemaps_countrymap_mapdata.state_specific[key].description = `Seeds_stock_to_sales: ${val.seed_stock_to_sale}`;
+        //             simplemaps_countrymap_mapdata.state_specific[key].color = getRandomColor();
+        //             break;
+        //         }
+        //     }
+
+        // })
+        createTable();
+
+    }
+
+    const createTable = (template) => {
+        // $('#tables tbody').append(template)
+        $('#tables').DataTable();
+        $('#tables').wrap('<div class="table-container"></div>');
+    }
+
+</script>

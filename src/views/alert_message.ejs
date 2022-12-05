@@ -1,0 +1,14 @@
+<% if (message.success) { %>
+    <div class="alert alert-success mt-2">
+        <h3 class="mb-0" style="word-break: break-all;">
+            <%= message.success %>
+        </h3>
+    </div>
+    <% } %>
+        <% if (message.danger) { %>
+            <div class="alert alert-danger mt-2">
+                <h3 class="mb-0" style="word-break: break-all;">
+                    <%= message.danger %>
+                </h3>
+            </div>
+            <% } %>

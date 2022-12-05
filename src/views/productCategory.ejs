@@ -1,0 +1,69 @@
+<% include partials/_header %>
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <form method="POST" action="<%= action == 'insert' ? '/product-category/add' : `/product-category/update/${id}` %>"
+                class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Add product category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" class="form-control" name="Code"
+                            value="<%= (typeof productCategory != 'undefined' ? productCategory.Code : '') %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Category name</label>
+                        <input type="text" class="form-control" name="CategoryName"
+                            value="<%= typeof productCategory != 'undefined' ? productCategory.CategoryName : '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <%- include('selectStatus', {select: (typeof productCategory !='undefined' ? productCategory.Status : '' ) }) %>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="" style="width: 100%;">
+            <div class="">
+                <% if(action=='insert' ){ %>
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#staticBackdrop">+
+                        Add</button>
+                    <% } %>
+
+            </div>
+            <div class="product-container text-center">
+                <h2>Product category</h2>
+                <% if(data.length> 0){ %>
+                    <%- include('dataTable', {data: data, ignoreKey: ['CategoryID'], keyId: 'CategoryID' ,
+                        urlUpdate: '/product-category/update' , urlDelete: '/product-category/delete' }) %>
+                        <% } %>
+            </div>
+            <% include alert_message %>
+        </div>
+        <input type="hidden" id="dataHidden" value="<%= (typeof jsonData != 'undefined' ? jsonData : '') %>">
+    </div>
+    <script>
+        let resultsJson = $("#dataHidden").val();
+        let action = "<%= action %>";
+        if (resultsJson != "") resultsJson = JSON.parse(resultsJson);
+        $(document).ready(() => {
+            if (action == 'update') {
+                $('#staticBackdrop').modal('show')
+            }
+
+        });
+    </script>
+    <% include partials/_footer %>

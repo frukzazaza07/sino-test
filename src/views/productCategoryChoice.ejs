@@ -1,0 +1,4 @@
+
+    <% for (let item of dataCategory){ %> 
+        <option <%= (select == item.CategoryID ? "selected" : "") %> value="<%= item.CategoryID %>"><%= item.CategoryName %></option>
+    <% } %>

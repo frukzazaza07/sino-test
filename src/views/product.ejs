@@ -1,0 +1,112 @@
+<% include partials/_header %>
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <form method="POST" action="<%= action == 'insert' ? '/product/add' : `/product/update/${id}` %>"
+                class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Add product category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Code</label>
+                        <input type="text" class="form-control" name="Code"
+                            value="<%= (typeof product != 'undefined' ? product.Code : '') %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Product name</label>
+                        <input type="text" class="form-control" name="ProductName"
+                            value="<%= typeof product != 'undefined' ? product.ProductName : '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <input type="text" class="form-control" name="Price" id="Price"
+                            value="<%= typeof product != 'undefined' ? product.Price : '' %>">
+                    </div>
+                    <div class="form-group">
+                        <label>Product category</label>
+                        <select class="form-control" name="CategoryID">
+                        <%- include('productCategoryChoice', {dataCategory: dataCategory, select: (typeof product
+                            !='undefined' ? product.CategoryID : '' ) }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <%- include('selectStatus', {select: (typeof product !='undefined' ? product.Status : '' ) }) %>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="" style="width: 100%;">
+            <div class="">
+                <% if(action=='insert' ){ %>
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#staticBackdrop">+
+                        Add</button>
+                    <% } %>
+
+            </div>
+            <div class="product-container text-center">
+                <h2>Product</h2>
+                <% if(data.length> 0){ %>
+                    <%- include('dataTable', {data: data, ignoreKey: ['ProductID'], keyId: 'ProductID' ,
+                        urlUpdate: '/product/update' , urlDelete: '/product/delete' }) %>
+                        <% } %>
+            </div>
+            <% include alert_message %>
+        </div>
+        <input type="hidden" id="dataHidden" value="<%= (typeof jsonData != 'undefined' ? jsonData : '') %>">
+    </div>
+    <script>
+        let resultsJson = $("#dataHidden").val();
+        let action = "<%= action %>";
+        if (resultsJson != "") resultsJson = JSON.parse(resultsJson);
+        $(document).ready(() => {
+            if (action == 'update') {
+                $('#staticBackdrop').modal('show')
+            }
+
+        });
+
+        function setInputFilter(textbox, inputFilter, errMsg) {
+            ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop", "focusout"].forEach(function (event) {
+                textbox.addEventListener(event, function (e) {
+                    if (inputFilter(this.value)) {
+                        // Accepted value
+                        if (["keydown", "mousedown", "focusout"].indexOf(e.type) >= 0) {
+                            this.classList.remove("input-error");
+                            this.setCustomValidity("");
+                        }
+                        this.oldValue = this.value;
+                        this.oldSelectionStart = this.selectionStart;
+                        this.oldSelectionEnd = this.selectionEnd;
+                    } else if (this.hasOwnProperty("oldValue")) {
+                        // Rejected value - restore the previous one
+                        this.classList.add("input-error");
+                        this.setCustomValidity(errMsg);
+                        this.reportValidity();
+                        this.value = this.oldValue;
+                        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+                    } else {
+                        // Rejected value - nothing to restore
+                        this.value = "";
+                    }
+                });
+            });
+        }
+
+        setInputFilter(document.getElementById("Price"), function (value) {
+            return /^\d*\.?\d{0,2}$/.test(value); // Allow digits and '.' only, using a RegExp
+        }, "Only 2 digits and '.' are allowed");
+    </script>
+    <% include partials/_footer %>

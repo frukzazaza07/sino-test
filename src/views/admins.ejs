@@ -1,0 +1,24 @@
+<% include partials/_header %>
+  <div class="container mt-5">
+    <% include customers_registration %>
+    <% include admins_events %>
+    <div class="d-flex justify-content-center" style="width: 100%;">
+      <div class="card-body col-md-5">
+        <form action="/admins/add" method="POST" class="text-center">
+          <div class="form-group">
+            <input type="text" name="event_name" placeholder="Event name" class="form-control" autofocus>
+          </div>
+          <div class="form-group">
+            <input type="text" name="max_visitor" placeholder="Max visitor" class="form-control">
+          </div>
+
+          <button type="submit" class="mt-2 btn btn-primary">
+            Add Event
+          </button>
+          <% include alert_message %>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <% include partials/_footer %>

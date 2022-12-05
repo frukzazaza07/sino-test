@@ -1,0 +1,401 @@
+<% include partials/_header %>
+    <style>
+        input[type=checkbox] {
+            border-radius: 50% !important;
+            width: 1.8em;
+            height: 1.8em;
+            background-color: white;
+            border-radius: 50%;
+            vertical-align: middle;
+            border: 1px solid #ddd;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type=checkbox]:checked {
+            box-shadow: none !important;
+            background-color: rgb(0, 183, 76);
+            border: 1px solid black;
+        }
+
+        .sum-total {
+            content: '';
+            border-bottom: solid 1px #d4d4d4;
+            box-shadow: 0 1px 0 #d4d4d4;
+        }
+    </style>
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <div class="col-5">
+                <div class="search-container">
+                    <form id="formSearchCustomer" class="" action="" onsubmit="handleSearchCustomer(event)">
+                        <div class="form-group d-flex align-items-center">
+                            <label for="">CustomerID :</label>
+                            <input type="text" class="form-control" name="CusID" id="CusID" style="width: 50%;">
+                            <button class="btn btn-success" style="padding: .65rem 1.2rem;">ค้นหา</button>
+                        </div>
+                    </form>
+                </div>
+                <fieldset class="customer-detail-container p-3" style="border: 1px solid #d4d4d4;">
+                    <p>Name : <span id="cusName"></span></p>
+                    <p>Surname : <span id="cusSurname"></span></p>
+                    <p class="m-0">Status : <span id="cusStatus"></span></p>
+                </fieldset>
+            </div>
+            <div class="col-7 text-center">
+                <h1>Order</h1>
+                <h5>19 Febuary 2021</h5>
+                <h5>Order Status : Active</h5>
+            </div>
+
+        </div>
+        <div class="row" style="height: 66vh;">
+            <div class="col-5">
+                <div class="product-container p-3 mt-2" style="border: 1px solid #d4d4d4; height: 95%;">
+                    <h2 class="text-center">รายการสินค้าทั้งหมด</h2>
+                    <div class="product-category-container d-flex justify-content-end align-items-center mt-4">
+                        <p>ประเภทสินค้า : </p>
+                        <div class="form-group" style="width: 25%;">
+                            <select class="form-control" onchange="handleCategoryChange(this.value)" name="CategoryID"
+                                id="CategoryID">
+                                <option selected value="all">ทั้งหมด</option>
+                                <%- include('productCategoryChoice', {dataCategory: dataCategory, select: (typeof
+                                    product !='undefined' ? product.CategoryID : '' ) }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="product-container p-2"
+                        style="border: 1px solid #d4d4d4; height: 37%; overflow-y: scroll;">
+                        <table class="text-center" style="width: 100%;">
+                            <thead class="text-light" style="position: sticky; top: 0px; background-color: black;">
+                                <tr>
+                                    <th>รหัสสินค้า</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>ราคาเต็ม</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="productBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-7">
+                <div class="order-container p-2 mt-2" style="border: 1px solid #d4d4d4; height: 95%;">
+                    <div class="order-detail" style="height: 40%; overflow-y: scroll; border: 1px solid #d4d4d4;">
+                        <table class="text-center" style="width: 100%;">
+                            <thead class="text-light" style="position: sticky; top: 0px; background-color: black;">
+                                <tr>
+                                    <th>รหัสสินค้า</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>ราคาเต็ม</th>
+                                    <th>จำนวน</th>
+                                    <th>ราคาขาย</th>
+                                    <th>ยอดรวม</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderBody">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="sum-order-container mt-3 d-flex justify-content-end">
+                        <table style="width: 50%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-right" style="font-size: 20px;">จำนวนสินค้าทั้งหมด : </th>
+                                    <th class="text-center" style="font-size: 20px;"><span
+                                            style="border-bottom: 2px solid #d4d4d4; display:inline-block;"
+                                            id="itemAmountInOrder">0</span>
+                                    </th>
+                                    <th style="font-size: 20px;">ชิ้น</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-right" style="font-size: 20px;">จำนวนเงินทั้งหมด : </th>
+                                    <th class="text-center" style="font-size: 20px;"><span
+                                            style="border-bottom: 2px solid #d4d4d4; display:inline-block;"
+                                            id="sumPrice">0</span>
+                                    </th>
+                                    <th style="font-size: 20px;">บาท</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-right" style="font-size: 20px;">ชำระด้วย : </th>
+                                    <th class="text-center" style="font-size: 20px;"><span
+                                            style="border-bottom: 2px solid #d4d4d4; display:inline-block;"
+                                            id="payBy">เงินสด</span>
+                                    </th>
+                                    <th style="font-size: 20px;"></th>
+                                </tr>
+                                <tr>
+                                    <th class="text-right" style="font-size: 20px;">ยอดรวม : </th>
+                                    <th class="text-center" style="font-size: 20px; position: relative;"><span
+                                            class="sum-total" style="display:inline-block;" id="sumTotalPrice">0</span>
+                                    </th>
+                                    <th style="font-size: 20px;">บาท</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <div class="button-action-container">
+                            <button onclick="handlePrintOrder()" class="btn btn-primary">Print</button>
+                            <button onclick="handleSaveOrder()" class="btn btn-primary">Save</button>
+                            <button onclick="handleCancelOrder()" class="btn btn-primary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="productAll" name="productAll"
+                value="<%= typeof productAll != 'undefined' ? productAll : '' %>">
+            <input type="hidden" id="productCategoryAll" name="productCategoryAll"
+                value="<%= typeof productCategoryAll != 'undefined' ? productCategoryAll : '' %>">
+            <input type="hidden" id="customerAll" name="customerAll"
+                value="<%= typeof customerAll != 'undefined' ? customerAll : '' %>">
+        </div>
+    </div>
+    <script>
+        // let resultsJson = $("#dataHidden").val();
+        // let action = "<%= action %>";
+        // if (resultsJson != "") resultsJson = JSON.parse(resultsJson);
+        let productData = $("#productAll").val();
+        let productCategoryData = $("#productCategoryAll").val();
+        let customerData = $("#customerAll").val();
+        let productForSelect = {};
+        let orderData = {};
+        let countItemInOrder = 0;
+        let sumPrice = 0;
+        let productShowCurrent = [];
+        let defaultDecimal = 2;
+        let cusData = [];
+        const employeeId = "<%= employeeId %>";
+        const orderShowBy = ["Code", "ProductName", "Price", "amount", "salePrice", "sumTotalPrice"];
+        const productShowBy = ["Code", "ProductName", "Price"];
+
+        if (productData != '') productData = JSON.parse(productData);
+        if (productCategoryData != '') productCategoryData = JSON.parse(productCategoryData);
+        if (customerData != '') customerData = JSON.parse(customerData);
+
+        productShowCurrent = productData;
+
+        $(document).ready(() => {
+            init();
+        });
+
+        function init() {
+            orderData["productOrder"] = {};
+            orderData["countItemInOrder"] = 0;
+            orderData["customerData"] = {};
+            orderData["employeeId"] = employeeId;
+            console.log(orderData)
+            appendData(productShowCurrent, productShowBy, "#productBody", "ProductID");
+
+        }
+
+        function appendData(data, keyShowData, appendTo, keyId) {
+            if (data == "") return;
+            let template = "";
+            if (Object.prototype.toString.call(data) == '[object Object]') {
+                for (const [keyItem, item] of Object.entries(data)) {
+                    template += "<tr style='height: 35px'>";
+                    for (const [key, value] of Object.entries(item)) {
+
+                        if (key == "amount") {
+                            template += `<td><input onchange="calNewAmount(${item[keyId]}, this)" style="height: 20px; width: 100px; display: inline-block;" class="form-control" type="number" id="productAmount-${item[keyId]}" value="${value}"></td>`;
+                        }
+                        else if (key == "sumTotalPrice") {
+                            template += `<td>${addCommas(parseFloat(item["salePrice"]) * parseFloat(item["amount"]), defaultDecimal)}</td>`;
+                        }
+                        else if (key == "deleteItem") {
+                            template += `<td onclick="addToOrder(${item[keyId]}, this)" class="text-danger">X</td>`;
+                        } else if (keyShowData.indexOf(key) >= 0) {
+                            template += `<td>${addCommas(value, defaultDecimal)}</td>`;
+                        }
+
+                    }
+
+
+                    template += "</td>";
+                }
+            } else {
+                for (let item of data) {
+                    productForSelect[item[keyId]] = item;
+                    template += "<tr style='height: 35px'>";
+                    for (const [key, value] of Object.entries(item)) {
+                        if (keyShowData.indexOf(key) >= 0) {
+                            template += `<td>${value}</td>`;
+                        }
+
+                        if (key == "isSelect") {
+                            template += `<td><input ${value == true ? 'checked' : ''} id="pro-${item[keyId]}" onchange="addToOrder(${item[keyId]}, this)" type="checkbox" class="product-check"></td>`;
+                        }
+                    }
+
+                    template += "</td>";
+                }
+            }
+            $(`${appendTo} tr`).remove();
+            $(appendTo).append(template);
+        }
+
+        function addToOrder(productId, element) {
+            // if (element.type != "checkbox") return;
+
+            if (typeof orderData["productOrder"] == "undefined") orderData["productOrder"] = {}
+
+            if (element.checked == true) {
+                orderData["productOrder"][`p-${productId}`] = productForSelect[productId];
+                orderData["productOrder"][`p-${productId}`].isSelect = true;
+                countItemInOrder++;
+            } else {
+                orderData["productOrder"][`p-${productId}`].amount = 1;
+                orderData["productOrder"][`p-${productId}`].isSelect = false;
+                delete orderData["productOrder"][`p-${productId}`];
+                countItemInOrder--;
+
+                if (element.type != "checkbox") $(`#pro-${productId}`).prop('checked', false);
+            }
+
+            appendData(orderData["productOrder"], orderShowBy, "#orderBody", "ProductID");
+            handleItemInOrder();
+
+            sumTotalPrice()
+
+        }
+
+        function handleItemInOrder() {
+            orderData["countItemInOrder"] = countItemInOrder;
+            $("#itemAmountInOrder").text(countItemInOrder);
+        }
+        function addCommas(nStr, decimals) {
+            // Math.floor(number) === number
+
+            if (/^\d+(\.\d+)?$/.test(nStr) == false) return nStr;
+            nStr.toFixed(decimals);
+
+            nStr += '';
+            let x = nStr.split('.');
+            let x1 = x[0];
+            let x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+
+            if (x2.length > (decimals + 1)) {
+                let newX2 = "";
+                for (let i = 0; i < x2.length; i++) {
+                    newX2 += x2[i];
+                    if (i == decimals) break;
+                }
+                x2 = newX2
+            }
+            return x1 + x2;
+        }
+
+        function calNewAmount(productId, element) {
+            // "amount", "salePrice", "sumTotalPrice"
+            orderData["productOrder"][`p-${productId}`].amount = parseInt(element.value);
+            sumTotalPrice();
+            appendData(orderData["productOrder"], orderShowBy, "#orderBody", "ProductID");
+
+            if (element.value == 0) {
+                addToOrder(productId, element);
+            }
+            // console.log(orderData["productOrder"])
+        }
+
+        function sumTotalPrice() {
+            sumPrice = 0;
+            for (const [keyItem, item] of Object.entries(orderData["productOrder"])) {
+                sumPrice += parseFloat(item.salePrice) * parseInt(item.amount);
+            }
+            let showPriceWithFormat = addCommas(sumPrice, defaultDecimal);
+            // console.log(showPriceWithFormat)
+            $("#sumPrice").text(showPriceWithFormat);
+            $("#sumTotalPrice").text(showPriceWithFormat);
+        }
+
+        async function handleSearchCustomer(event) {
+            event.preventDefault();
+            const CusID = $("#CusID").val();
+            axios({
+                method: "POST",
+                url: "/customers/search",
+                data: JSON.stringify({ CusID: CusID }),
+                headers: { "Content-Type": "application/json" },
+            }).then(function (response) {
+                if (response.data.length == 0) { alert(`ไม่พบ CustomerID: ${CusID}`); return; }
+                cusData = response.data[0];
+                $("#cusName").text(cusData.Name);
+                $("#cusSurname").text(cusData.Surname);
+                $("#cusStatus").text(cusData.Status);
+                orderData["customerData"] = cusData;
+            }).catch(function (response) {
+                //handle error
+                console.log(response);
+            });
+        }
+
+        function handlePrintOrder() {
+            alert('Print order is comming soon');
+        }
+        function handleCancelOrder() {
+            for (const [key, value] of Object.entries(orderData["productOrder"])) {
+                orderData["productOrder"][`p-${value.ProductID}`].amount = 1;
+            }
+
+            orderData["productOrder"] = {}
+            orderData["countItemInOrder"] = 0;
+            sumPrice = 0;
+            countItemInOrder = 0;
+            handleItemInOrder()
+            sumTotalPrice();
+            $('.product-check').prop('checked', false);
+            $("#orderBody tr").remove();
+        }
+
+        function handleSaveOrder() {
+            axios({
+                method: "POST",
+                url: "/order/add",
+                data: JSON.stringify({ order: orderData }),
+                headers: { "Content-Type": "application/json" },
+            }).then(function (response) {
+                response = response.data;
+                alert(response.message);
+                window.location.reload()
+            }).catch(function (response) {
+                //handle error
+                console.log(response);
+            });
+        }
+
+        function handleCategoryChange(value) {
+
+
+            if (value == 'all') {
+                productShowCurrent = productData;
+            }else{
+                productShowCurrent = filterByCategory(value);
+            }
+            appendData(productShowCurrent, productShowBy, "#productBody", "ProductID");
+            // console.log(value)
+        }
+
+        function filterByCategory(categoryId) {
+            let returnData = [];
+            for (let item of productData) {
+                if (item.CategoryID == categoryId) {
+                    returnData.push(item);
+                }
+            }
+            return returnData;
+        }
+    </script>
+    <% include partials/_footer %>
